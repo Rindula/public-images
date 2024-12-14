@@ -6,7 +6,7 @@ on:
       - cron: '0 3 * * 0'
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: webserver
+  IMAGE_NAME: Rindula/webserver
 
 jobs:
 
