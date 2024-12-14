@@ -1,0 +1,69 @@
+name: Build and push Docker image
+
+on:
+    workflow_dispatch:
+    schedule:
+      - cron: '0 3 * * 0'
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: webserver
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+        matrix:
+            php_version: ["8.0", "8.1", "8.2", "8.3", "8.4"]
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+      attestations: write
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v3
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    - name: Extract metadata (tags, labels) for Docker
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        labels: |
+          php_version=${{ matrix.php_version }}
+        # generate Docker tags based on the following events/attributes
+        tags: |
+          type=schedule,pattern={{date 'YYYYMMDD'}}
+          type=raw,value=${{ matrix.php_version }}
+    - name: Replace BASEIMAGE in Dockerfile
+      run: |
+        sed -i "s/%BASEIMAGE%/php:${{ matrix.php_version }}-apache/" webserver/Dockerfile
+    - name: Create Docker Image
+      uses: docker/build-push-action@v6
+      id: push
+      with:
+        context: webserver
+        file: webserver/Dockerfile
+        platforms: linux/amd64,linux/arm64,linux/arm/v7
+        provenance: false
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+    - name: Attest
+      uses: actions/attest@v2
+      id: attest
+      with:
+        subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        subject-digest: ${{ steps.push.outputs.digest }}
+        predicate-type: 'https://in-toto.io/attestation/release'
+        predicate: '{"purl":"pkg:oci/${{ steps.push.outputs.digest }}"}'
+        push-to-registry: true
