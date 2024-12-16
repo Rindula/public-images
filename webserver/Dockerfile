@@ -6,3 +6,5 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg
 RUN docker-php-ext-configure intl
 RUN docker-php-ext-install mysqli pdo_mysql opcache gd exif intl zip fileinfo
 RUN docker-php-ext-enable mysqli pdo_mysql opcache gd exif intl zip fileinfo
+
+RUN a2enmod rewrite
