@@ -42,7 +42,6 @@ jobs:
           php_version=${{ matrix.php_version }}
         # generate Docker tags based on the following events/attributes
         tags: |
-          type=schedule,pattern={{date 'YYYYMMDD'}}
           type=raw,value=${{ matrix.php_version }}
     - name: Replace BASEIMAGE in Dockerfile
       run: |
