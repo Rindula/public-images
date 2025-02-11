@@ -3,7 +3,7 @@ name: Build and push Docker image for Webserver
 on:
     workflow_dispatch:
     schedule:
-      - cron: '0 3 * * 0'
+      - cron: '0 8 * * 0'
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: Rindula/webserver
