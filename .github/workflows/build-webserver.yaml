@@ -54,18 +54,9 @@ jobs:
         context: webserver
         file: webserver/Dockerfile
         platforms: linux/amd64
-        provenance: false
+        sbom: true
         push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
         cache-from: type=gha,scope=webserver-${{ matrix.php_version }}
         cache-to: type=gha,mode=max,scope=webserver-${{ matrix.php_version }}
-    - name: Attest
-      uses: actions/attest@v2
-      id: attest
-      with:
-        subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-        subject-digest: ${{ steps.push.outputs.digest }}
-        predicate-type: 'https://in-toto.io/attestation/release'
-        predicate: '{"purl":"pkg:oci/${{ steps.push.outputs.digest }}"}'
-        push-to-registry: true
