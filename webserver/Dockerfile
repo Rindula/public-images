@@ -9,3 +9,4 @@ RUN docker-php-ext-enable mysqli pdo_mysql opcache gd exif intl zip fileinfo
 
 RUN a2enmod rewrite
 RUN a2enmod headers
+RUN a2enmod env
