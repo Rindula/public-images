@@ -11,3 +11,4 @@ RUN a2enmod rewrite
 RUN a2enmod headers
 RUN a2enmod env
 RUN a2enmod status
+RUN a2enmod remoteip
